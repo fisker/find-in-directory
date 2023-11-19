@@ -10,14 +10,25 @@ export type FindOptions = {
  * @param {NameOrNames} nameOrNames
  * @param {Predicate} [predicate]
  * @param {FindOptions} [options]
+ * @returns {ReturnType<findInDirectory>}
  */
-export function findFile(directory: UrlOrPath, nameOrNames: NameOrNames, predicate?: Predicate, options?: FindOptions): Promise<string>;
+export function findFile(directory: UrlOrPath, nameOrNames: NameOrNames, predicate?: Predicate, options?: FindOptions): ReturnType<typeof findInDirectory>;
 /**
  * Find matched directory or directory names in a directory.
  * @param {UrlOrPath} directory
  * @param {NameOrNames} nameOrNames
  * @param {Predicate} [predicate]
  * @param {FindOptions} [options]
+ * @returns {ReturnType<findInDirectory>}
  */
-export function findDirectory(directory: UrlOrPath, nameOrNames: NameOrNames, predicate?: Predicate, options?: FindOptions): Promise<string>;
+export function findDirectory(directory: UrlOrPath, nameOrNames: NameOrNames, predicate?: Predicate, options?: FindOptions): ReturnType<typeof findInDirectory>;
+/**
+ * Find matched name or names in a directory
+ * @param {UrlOrPath} directory
+ * @param {NameOrNames} nameOrNames
+ * @param {Predicate} predicate
+ * @returns {Promise<string | void>}
+ */
+declare function findInDirectory(directory: UrlOrPath, nameOrNames: NameOrNames, predicate: Predicate): Promise<string | void>;
+export {};
 //# sourceMappingURL=index.d.ts.map

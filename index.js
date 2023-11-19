@@ -15,7 +15,7 @@ const toAbsolutePath = (directory) => path.resolve(toPath(directory))
  * @param {UrlOrPath} directory
  * @param {NameOrNames} nameOrNames
  * @param {Predicate} predicate
- * @returns {Promise<string>}
+ * @returns {Promise<string | void>}
  */
 async function findInDirectory(directory, nameOrNames, predicate) {
   directory = toAbsolutePath(directory)
@@ -74,6 +74,7 @@ async function checkType(path, type, options) {
  * @param {NameOrNames} nameOrNames
  * @param {Predicate} [predicate]
  * @param {FindOptions} [options]
+ * @returns {ReturnType<findInDirectory>}
  */
 function findFile(directory, nameOrNames, predicate, options) {
   if (typeof predicate !== 'function' && !options) {
@@ -95,6 +96,7 @@ function findFile(directory, nameOrNames, predicate, options) {
  * @param {NameOrNames} nameOrNames
  * @param {Predicate} [predicate]
  * @param {FindOptions} [options]
+ * @returns {ReturnType<findInDirectory>}
  */
 function findDirectory(directory, nameOrNames, predicate, options) {
   if (typeof predicate !== 'function' && !options) {
