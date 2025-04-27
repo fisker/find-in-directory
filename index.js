@@ -1,14 +1,11 @@
-import * as path from 'node:path'
 import * as fs from 'node:fs/promises'
-import {toPath} from 'url-or-path'
+import * as path from 'node:path'
+import {toAbsolutePath} from 'url-or-path'
 
-/** @typedef {import('url-or-path').UrlOrPath} UrlOrPath */
-/** @typedef {(path: string) => Promise<boolean>} Predicate */
+/** @import {UrlOrPath} from 'url-or-path' */
+/** @typedef {(file: {name: string, path: string}) => Promise<boolean>} Predicate */
 /** @typedef {string | string[]} NameOrNames */
 /** @typedef {{ allowSymlinks?: boolean}} FindOptions */
-
-/** @type {(directory: UrlOrPath) => string} */
-const toAbsolutePath = (directory) => path.resolve(toPath(directory))
 
 /**
  * Find matched name or names in a directory
@@ -25,7 +22,7 @@ async function findInDirectory(directory, nameOrNames, predicate) {
     const file = path.join(directory, name)
 
     // eslint-disable-next-line no-await-in-loop
-    if (await predicate(file)) {
+    if (await predicate({name, path: file})) {
       return file
     }
   }
@@ -34,14 +31,14 @@ async function findInDirectory(directory, nameOrNames, predicate) {
 /** @type {(...predicates: Predicate[]) => Predicate} */
 const combinePredicates =
   (...predicates) =>
-  async (path) => {
+  async (file) => {
     for (const predicate of predicates) {
       if (!predicate) {
         continue
       }
 
       // eslint-disable-next-line no-await-in-loop
-      if ((await predicate(path)) === false) {
+      if ((await predicate(file)) === false) {
         return false
       }
     }
@@ -83,7 +80,7 @@ function findFile(directory, nameOrNames, predicate, options) {
   }
 
   predicate = combinePredicates(
-    (file) => checkType(file, 'isFile', options),
+    (file) => checkType(file.path, 'isFile', options),
     predicate,
   )
 
@@ -105,11 +102,11 @@ function findDirectory(directory, nameOrNames, predicate, options) {
   }
 
   predicate = combinePredicates(
-    (file) => checkType(file, 'isDirectory', options),
+    (file) => checkType(file.path, 'isDirectory', options),
     predicate,
   )
 
   return findInDirectory(directory, nameOrNames, predicate)
 }
 
-export {findFile, findDirectory}
+export {findDirectory, findFile}

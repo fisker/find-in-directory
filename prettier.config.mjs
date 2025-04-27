@@ -1,14 +1,8 @@
-import config from '@fisker/prettier-config'
+/*!
+ * config file for `prettier`
+ *
+ * update: wget -O prettier.config.js https://git.io/fjVjd
+ * document: https://prettier.io/docs/en/options.html
+ */
 
-export default {
-  ...config,
-  overrides: [
-    ...config.overrides,
-    {
-      files: ['test.js'],
-      options: {
-        printWidth: 160,
-      },
-    },
-  ],
-}
+export {default} from '@fisker/prettier-config/dist/index.js'
