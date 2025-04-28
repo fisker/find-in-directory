@@ -1,6 +1,6 @@
 {
   "name": "find-in-directory",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Find file or directory by names in a directory.",
   "homepage": "https://github.com/fisker/find-in-directory#readme",
   "bugs": {
