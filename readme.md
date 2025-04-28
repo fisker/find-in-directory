@@ -54,7 +54,7 @@ Type: `string[] | string`
 
 #### `predicate`
 
-Type: `(file: {name: string, path: string}) => Promise<boolean>`
+Type: `(fileOrDirectory: {name: string, path: string}) => Promise<boolean>`
 
 #### `options`
 

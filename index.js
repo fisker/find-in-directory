@@ -2,10 +2,17 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import {toAbsolutePath} from 'url-or-path'
 
-/** @import {UrlOrPath} from 'url-or-path' */
-/** @typedef {(file: {name: string, path: string}) => Promise<boolean>} Predicate */
-/** @typedef {string | string[]} NameOrNames */
-/** @typedef {{ allowSymlinks?: boolean}} FindOptions */
+/**
+@import {UrlOrPath} from 'url-or-path'
+
+@typedef {
+  (fileOrDirectory: {name: string, path: string}) => Promise<boolean>
+} Predicate
+
+@typedef {string | string[]} NameOrNames
+
+@typedef {{ allowSymlinks?: boolean}} FindOptions
+*/
 
 /**
  * Find matched name or names in a directory

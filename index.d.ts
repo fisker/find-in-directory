@@ -1,4 +1,4 @@
-export type Predicate = (file: {
+export type Predicate = (fileOrDirectory: {
     name: string;
     path: string;
 }) => Promise<boolean>;
@@ -25,10 +25,17 @@ export function findDirectory(directory: UrlOrPath, nameOrNames: NameOrNames, pr
  */
 export function findFile(directory: UrlOrPath, nameOrNames: NameOrNames, predicate?: Predicate, options?: FindOptions): ReturnType<typeof findInDirectory>;
 import type { UrlOrPath } from 'url-or-path';
-/** @import {UrlOrPath} from 'url-or-path' */
-/** @typedef {(file: {name: string, path: string}) => Promise<boolean>} Predicate */
-/** @typedef {string | string[]} NameOrNames */
-/** @typedef {{ allowSymlinks?: boolean}} FindOptions */
+/**
+@import {UrlOrPath} from 'url-or-path'
+
+@typedef {
+  (fileOrDirectory: {name: string, path: string}) => Promise<boolean>
+} Predicate
+
+@typedef {string | string[]} NameOrNames
+
+@typedef {{ allowSymlinks?: boolean}} FindOptions
+*/
 /**
  * Find matched name or names in a directory
  * @param {UrlOrPath} directory
