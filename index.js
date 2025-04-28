@@ -6,7 +6,7 @@ import {toAbsolutePath} from 'url-or-path'
 @import {UrlOrPath} from 'url-or-path'
 
 @typedef {
-  (fileOrDirectory: {name: string, path: string}) => Promise<boolean>
+  (fileOrDirectory: {name: string, path: string}) => Promise<boolean> | boolean
 } Predicate
 
 @typedef {string | string[]} NameOrNames
@@ -15,12 +15,13 @@ import {toAbsolutePath} from 'url-or-path'
 */
 
 /**
- * Find matched name or names in a directory
- * @param {UrlOrPath} directory
- * @param {NameOrNames} nameOrNames
- * @param {Predicate} predicate
- * @returns {Promise<string | void>}
- */
+Find matched name or names in a directory
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@param {Predicate} predicate
+@returns {Promise<string | void>}
+*/
 async function findInDirectory(directory, nameOrNames, predicate) {
   directory = toAbsolutePath(directory)
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
@@ -54,12 +55,13 @@ const combinePredicates =
   }
 
 /**
- * Check if given path is file or directory
- * @param {string} path
- * @param {'isFile' | 'isDirectory'} type
- * @param {FindOptions} [options]
- * @returns {Promise<boolean>}
- */
+Check if given path is file or directory
+
+@param {string} path
+@param {'isFile' | 'isDirectory'} type
+@param {FindOptions} [options]
+@returns {Promise<boolean>}
+*/
 async function checkType(path, type, options) {
   const allowSymlinks = options?.allowSymlinks ?? true
   let stats
@@ -73,13 +75,45 @@ async function checkType(path, type, options) {
 }
 
 /**
- * Find matched file or file names in a directory.
- * @param {UrlOrPath} directory
- * @param {NameOrNames} nameOrNames
- * @param {Predicate} [predicate]
- * @param {FindOptions} [options]
- * @returns {ReturnType<findInDirectory>}
- */
+@overload
+
+Find matched file or file names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@returns {ReturnType<findInDirectory>}
+*/
+/**
+@overload
+
+Find matched file or file names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@param {Predicate} predicate
+@returns {ReturnType<findInDirectory>}
+*/
+/**
+@overload
+
+Find matched file or file names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@param {FindOptions} options
+@returns {ReturnType<findInDirectory>}
+*/
+/**
+@overload
+
+Find matched file or file names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@param {Predicate} predicate
+@param {FindOptions} options
+@returns {ReturnType<findInDirectory>}
+*/
 function findFile(directory, nameOrNames, predicate, options) {
   if (typeof predicate !== 'function' && !options) {
     options = predicate
@@ -95,13 +129,45 @@ function findFile(directory, nameOrNames, predicate, options) {
 }
 
 /**
- * Find matched directory or directory names in a directory.
- * @param {UrlOrPath} directory
- * @param {NameOrNames} nameOrNames
- * @param {Predicate} [predicate]
- * @param {FindOptions} [options]
- * @returns {ReturnType<findInDirectory>}
- */
+@overload
+
+Find matched directory or directory names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@returns {ReturnType<findInDirectory>}
+*/
+/**
+@overload
+
+Find matched directory or directory names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@param {Predicate} predicate
+@returns {ReturnType<findInDirectory>}
+*/
+/**
+@overload
+
+Find matched directory or directory names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@param {FindOptions} options
+@returns {ReturnType<findInDirectory>}
+*/
+/**
+@overload
+
+Find matched directory or directory names in a directory.
+
+@param {UrlOrPath} directory
+@param {NameOrNames} nameOrNames
+@param {Predicate} predicate
+@param {FindOptions} options
+@returns {ReturnType<findInDirectory>}
+*/
 function findDirectory(directory, nameOrNames, predicate, options) {
   if (typeof predicate !== 'function' && !options) {
     options = predicate
