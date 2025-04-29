@@ -12,6 +12,8 @@ import {toAbsolutePath} from 'url-or-path'
 @typedef {string | string[]} NameOrNames
 
 @typedef {{ allowSymlinks?: boolean}} FindOptions
+
+@typedef {Promise<string | void>} FindResult
 */
 
 /**
@@ -20,7 +22,7 @@ Find matched name or names in a directory
 @param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
 @param {Predicate} predicate
-@returns {Promise<string | void>}
+@returns {FindResult}
 */
 async function findInDirectory(directory, nameOrNames, predicate) {
   directory = toAbsolutePath(directory)
@@ -81,7 +83,7 @@ Find matched file or file names in a directory.
 
 @param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 /**
 @overload
@@ -91,7 +93,7 @@ Find matched file or file names in a directory.
 @param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
 @param {Predicate} predicate
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 /**
 @overload
@@ -101,7 +103,7 @@ Find matched file or file names in a directory.
 @param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
 @param {FindOptions} options
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 /**
 @overload
@@ -112,7 +114,7 @@ Find matched file or file names in a directory.
 @param {NameOrNames} nameOrNames
 @param {Predicate} predicate
 @param {FindOptions} options
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 function findFile(directory, nameOrNames, predicate, options) {
   if (typeof predicate !== 'function' && !options) {
@@ -135,7 +137,7 @@ Find matched directory or directory names in a directory.
 
 @param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 /**
 @overload
@@ -145,7 +147,7 @@ Find matched directory or directory names in a directory.
 @param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
 @param {Predicate} predicate
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 /**
 @overload
@@ -155,7 +157,7 @@ Find matched directory or directory names in a directory.
 @param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
 @param {FindOptions} options
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 /**
 @overload
@@ -166,7 +168,7 @@ Find matched directory or directory names in a directory.
 @param {NameOrNames} nameOrNames
 @param {Predicate} predicate
 @param {FindOptions} options
-@returns {ReturnType<findInDirectory>}
+@returns {FindResult}
 */
 function findDirectory(directory, nameOrNames, predicate, options) {
   if (typeof predicate !== 'function' && !options) {

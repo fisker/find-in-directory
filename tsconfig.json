@@ -7,6 +7,9 @@
     "checkJs": true,
     "declaration": true,
     "declarationMap": false,
-    "noEmit": true
+    "noEmit": true,
+    "target": "ESNext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   }
 }
