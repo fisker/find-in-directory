@@ -30,8 +30,8 @@ import {findFile, findDirectory} from 'find-in-directory'
 console.log(await findFile(['foo.config.js', 'foo.config.json']))
 // "/path/to/foo.config.json"
 
-console.log(await findDirectory(['.git', '.hg']))
-// "/path/to/.git"
+console.log(await findDirectory(['node_modules', '.yarn']))
+// "/path/to/node_modules"
 ```
 
 ## API
@@ -73,3 +73,7 @@ const file = await findFile(['foo.js', 'bar.js'], {
 Should allow symlinks or not.
 
 Type: `boolean`
+
+## Related
+
+- [`search-closest`](https://github.com/fisker/search-closest) - Find closest file or directory.
