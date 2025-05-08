@@ -33,7 +33,7 @@ console.log(await findDirectory(['node_modules', '.yarn']))
 
 ## API
 
-### `{findFile, findDirectory}(nameOrNames, options?)`
+### `find{File,Directory}(nameOrNames, options?)`
 
 #### `nameOrNames`
 
