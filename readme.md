@@ -27,24 +27,16 @@ yarn add find-in-directory
 ```js
 import {findFile, findDirectory} from 'find-in-directory'
 
-const file = await findFile(process.cwd(), [
-  'package.json',
-  'package.json5',
-  'package.yaml',
-])
+console.log(await findFile('file.js'))
+// "/path/to/file.js"
 
-// "/path/to/package.json"
+console.log(await findDirectory('directory'))
+// "/path/to/directory"
 ```
 
 ## API
 
-### `{findFile, findDirectory}(directory, nameOrNames, predicate?, options?)`
-
-#### `directory`
-
-The directory to find.
-
-Type: `URL | string`
+### `{findFile, findDirectory}(nameOrNames, options?)`
 
 #### `nameOrNames`
 
@@ -52,11 +44,29 @@ The file/directory name or names to find.
 
 Type: `string[] | string`
 
-#### `predicate`
+#### `options.cwd`
 
-Type: `(fileOrDirectory: {name: string, path: string}) => Promise<boolean>`
+The directory to find.
 
-#### `options`
+Type: `URL | string`\
+Default: `process.cwd()`
+
+#### `options.filter`
+
+Type: `(fileOrDirectory: {name: string, path: string, stats: fs.Stats}) => Promise<boolean>`
+
+```js
+import fs from 'node:fs/promises'
+import {findFile} from 'find-in-directory'
+
+const file = await findFile(['foo.js', 'bar.js'], {
+  async filter({path: file}) {
+    const content = await fs.readFile(file, 'utf8')
+    return content.startsWith('#!/usr/bin/env node')
+  },
+})
+// "/path/to/bar.js"
+```
 
 #### `options.allowSymlinks`
 

@@ -1,187 +1,116 @@
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
+import process from 'node:process'
 import {toAbsolutePath} from 'url-or-path'
 
 /**
-@import {UrlOrPath} from 'url-or-path'
+@import {OptionalUrlOrPath} from 'url-or-path'
+@import {Stats} from 'node:fs'
 
-@typedef {
-  (fileOrDirectory: {name: string, path: string}) => Promise<boolean> | boolean
-} Predicate
+@typedef {{
+  name: string,
+  path: string,
+  stats: Stats,
+}} FileOrDirectory
+
+@typedef {(fileOrDirectory: FileOrDirectory) => Promise<boolean> | boolean} Filter
 
 @typedef {string | string[]} NameOrNames
 
-@typedef {{ allowSymlinks?: boolean}} FindOptions
+@typedef {{
+  cwd?: OptionalUrlOrPath,
+  allowSymlinks?: boolean,
+  filter?: Filter,
+}} FindOptions
 
 @typedef {Promise<string | void>} FindResult
 */
 
+/** @type {(stats: Stats | undefined) => boolean} */
+const isFile = (stats) => stats?.isFile()
+/** @type {(stats: Stats | undefined) => boolean} */
+const isDirectory = (stats) => stats?.isDirectory()
+
 /**
 Find matched name or names in a directory
 
-@param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
-@param {Predicate} predicate
+@param {FindOptions & {
+  typeCheck: typeof isFile | typeof isDirectory,
+}} options
 @returns {FindResult}
 */
-async function findInDirectory(directory, nameOrNames, predicate) {
-  directory = toAbsolutePath(directory)
+async function findInDirectory(
+  nameOrNames,
+  {typeCheck, cwd, allowSymlinks = true, filter},
+) {
+  const directory = toAbsolutePath(cwd) ?? process.cwd()
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
 
   for (const name of names) {
-    const file = path.join(directory, name)
+    const fileOrDirectory = path.join(directory, name)
+    const stats = await safeStat(fileOrDirectory, allowSymlinks)
 
-    // eslint-disable-next-line no-await-in-loop
-    if (await predicate({name, path: file})) {
-      return file
+    if (
+      (await typeCheck(stats)) &&
+      (!filter || (await filter({name, path: fileOrDirectory, stats})))
+    ) {
+      return fileOrDirectory
     }
   }
 }
 
-/** @type {(...predicates: Predicate[]) => Predicate} */
-const combinePredicates =
-  (...predicates) =>
-  async (file) => {
-    for (const predicate of predicates) {
-      if (!predicate) {
-        continue
-      }
-
-      // eslint-disable-next-line no-await-in-loop
-      if ((await predicate(file)) === false) {
-        return false
-      }
-    }
-
-    return true
-  }
-
 /**
-Check if given path is file or directory
+Get stats for the given `path`.
 
 @param {string} path
-@param {'isFile' | 'isDirectory'} type
-@param {FindOptions} [options]
-@returns {Promise<boolean>}
+@param {boolean} [allowSymlinks]
+@returns {Promise<Stats | undefined>}
 */
-async function checkType(path, type, options) {
-  const allowSymlinks = options?.allowSymlinks ?? true
-  let stats
+async function safeStat(path, allowSymlinks = true) {
   try {
-    stats = await (allowSymlinks ? fs.stat : fs.lstat)(path)
+    return await (allowSymlinks ? fs.stat : fs.lstat)(path)
   } catch {
-    return false
+    // No op
   }
-
-  return stats[type]()
 }
 
 /**
-@overload
-
 Find matched file or file names in a directory.
 
-@param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
+@param {FindOptions} [options]
 @returns {FindResult}
+
+@example
+```js
+import {findFile} from 'find-in-directory'
+
+console.log(await findFile('file.js'))
+// "/path/to/file.js"
+```
 */
-/**
-@overload
-
-Find matched file or file names in a directory.
-
-@param {UrlOrPath} directory
-@param {NameOrNames} nameOrNames
-@param {Predicate} predicate
-@returns {FindResult}
-*/
-/**
-@overload
-
-Find matched file or file names in a directory.
-
-@param {UrlOrPath} directory
-@param {NameOrNames} nameOrNames
-@param {FindOptions} options
-@returns {FindResult}
-*/
-/**
-@overload
-
-Find matched file or file names in a directory.
-
-@param {UrlOrPath} directory
-@param {NameOrNames} nameOrNames
-@param {Predicate} predicate
-@param {FindOptions} options
-@returns {FindResult}
-*/
-function findFile(directory, nameOrNames, predicate, options) {
-  if (typeof predicate !== 'function' && !options) {
-    options = predicate
-    predicate = undefined
-  }
-
-  predicate = combinePredicates(
-    (file) => checkType(file.path, 'isFile', options),
-    predicate,
-  )
-
-  return findInDirectory(directory, nameOrNames, predicate)
+function findFile(nameOrNames, options) {
+  return findInDirectory(nameOrNames, {...options, typeCheck: isFile})
 }
 
 /**
-@overload
-
 Find matched directory or directory names in a directory.
 
-@param {UrlOrPath} directory
 @param {NameOrNames} nameOrNames
+@param {FindOptions} [options]
 @returns {FindResult}
+
+@example
+```js
+import {findDirectory} from 'find-in-directory'
+
+console.log(await findDirectory('directory'))
+// "/path/to/directory"
+```
 */
-/**
-@overload
-
-Find matched directory or directory names in a directory.
-
-@param {UrlOrPath} directory
-@param {NameOrNames} nameOrNames
-@param {Predicate} predicate
-@returns {FindResult}
-*/
-/**
-@overload
-
-Find matched directory or directory names in a directory.
-
-@param {UrlOrPath} directory
-@param {NameOrNames} nameOrNames
-@param {FindOptions} options
-@returns {FindResult}
-*/
-/**
-@overload
-
-Find matched directory or directory names in a directory.
-
-@param {UrlOrPath} directory
-@param {NameOrNames} nameOrNames
-@param {Predicate} predicate
-@param {FindOptions} options
-@returns {FindResult}
-*/
-function findDirectory(directory, nameOrNames, predicate, options) {
-  if (typeof predicate !== 'function' && !options) {
-    options = predicate
-    predicate = undefined
-  }
-
-  predicate = combinePredicates(
-    (file) => checkType(file.path, 'isDirectory', options),
-    predicate,
-  )
-
-  return findInDirectory(directory, nameOrNames, predicate)
+function findDirectory(nameOrNames, options) {
+  return findInDirectory(nameOrNames, {...options, typeCheck: isDirectory})
 }
 
 export {findDirectory, findFile}
