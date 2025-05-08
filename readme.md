@@ -27,11 +27,11 @@ yarn add find-in-directory
 ```js
 import {findFile, findDirectory} from 'find-in-directory'
 
-console.log(await findFile('file.js'))
-// "/path/to/file.js"
+console.log(await findFile(['foo.config.js', 'foo.config.json']))
+// "/path/to/foo.config.json"
 
-console.log(await findDirectory('directory'))
-// "/path/to/directory"
+console.log(await findDirectory(['.git', '.hg']))
+// "/path/to/.git"
 ```
 
 ## API

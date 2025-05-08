@@ -86,8 +86,8 @@ Find matched file or file names in a directory.
 ```js
 import {findFile} from 'find-in-directory'
 
-console.log(await findFile('file.js'))
-// "/path/to/file.js"
+console.log(await findFile(['foo.config.js', 'foo.config.json']))
+// "/path/to/foo.config.json"
 ```
 */
 function findFile(nameOrNames, options) {
@@ -105,8 +105,8 @@ Find matched directory or directory names in a directory.
 ```js
 import {findDirectory} from 'find-in-directory'
 
-console.log(await findDirectory('directory'))
-// "/path/to/directory"
+console.log(await findDirectory(['node_modules', '.yarn']))
+// "/path/to/node_modules"
 ```
 */
 function findDirectory(nameOrNames, options) {
