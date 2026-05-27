@@ -69,6 +69,7 @@
     "@fisker/lint-staged-config": "3.4.0",
     "@fisker/markdownlint-cli2-config": "0.1.0",
     "@fisker/prettier-config": "5.3.0",
+    "@fisker/release-it-config": "6.0.2",
     "@types/node": "25.9.1",
     "c8": "11.0.0",
     "del-cli": "7.0.0",
