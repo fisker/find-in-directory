@@ -10,7 +10,7 @@ import {toAbsolutePath} from 'url-or-path'
 @typedef {{
   name: string,
   path: string,
-  stats: Stats,
+  stat: () => ReturnType<typeof safeStat>,
 }} FileOrDirectory
 
 @typedef {(fileOrDirectory: FileOrDirectory) => Promise<boolean> | boolean} Filter
@@ -24,36 +24,50 @@ import {toAbsolutePath} from 'url-or-path'
 }} FindOptions
 
 @typedef {Promise<string | void>} FindResult
+
+@typedef {(fileOrDirectory: Omit<FileOrDirectory, 'stat'> & {stats: Stats}) => Promise<boolean> | boolean} FileOrDirectoryFilter
+@typedef {Omit<FindOptions, 'filter'> & {filter?: FileOrDirectoryFilter}} FileOrDirectoryFindOptions
+
 */
 
-/** @type {(stats: Stats | undefined) => boolean} */
-const isFile = (stats) => stats?.isFile()
-/** @type {(stats: Stats | undefined) => boolean} */
-const isDirectory = (stats) => stats?.isDirectory()
+/**
+@param {string} name
+@param {string} path
+@param {boolean} allowSymlinks
+@returns {FileOrDirectory}
+*/
+function createFileOrDirectory(name, path, allowSymlinks) {
+  /** @type {ReturnType<safeStat> | undefined} */
+  let promise
+  const stat = () => {
+    promise ??= safeStat(path, allowSymlinks)
+    return promise
+  }
+  return {name, path, stat}
+}
 
 /**
 Find matched name or names in a directory
 
 @param {NameOrNames} nameOrNames
-@param {FindOptions & {
-  typeCheck: typeof isFile | typeof isDirectory,
-}} options
+@param {FindOptions} options
 @returns {FindResult}
 */
 async function findInDirectory(
   nameOrNames,
-  {typeCheck, cwd, allowSymlinks = true, filter},
+  {cwd, allowSymlinks = true, filter},
 ) {
   const directory = toAbsolutePath(cwd) ?? process.cwd()
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
 
   for (const name of names) {
     const fileOrDirectory = path.join(directory, name)
-    const stats = await safeStat(fileOrDirectory, allowSymlinks)
 
     if (
-      (await typeCheck(stats)) &&
-      (!filter || (await filter({name, path: fileOrDirectory, stats})))
+      !filter ||
+      (await filter(
+        createFileOrDirectory(name, fileOrDirectory, allowSymlinks),
+      ))
     ) {
       return fileOrDirectory
     }
@@ -79,7 +93,7 @@ async function safeStat(path, allowSymlinks = true) {
 Find matched file or file names in a directory.
 
 @param {NameOrNames} nameOrNames
-@param {FindOptions} [options]
+@param {FileOrDirectoryFindOptions} [options]
 @returns {FindResult}
 
 @example
@@ -90,15 +104,25 @@ console.log(await findFile(['foo.config.js', 'foo.config.json']))
 // "/path/to/foo.config.json"
 ```
 */
-function findFile(nameOrNames, options) {
-  return findInDirectory(nameOrNames, {...options, typeCheck: isFile})
+function findFile(nameOrNames, {filter, ...options} = {}) {
+  return findInDirectory(nameOrNames, {
+    ...options,
+    async filter(file) {
+      const stats = await file.stat()
+      return Boolean(
+        stats &&
+        stats.isFile() &&
+        (!filter || (await filter({...file, stats}))),
+      )
+    },
+  })
 }
 
 /**
 Find matched directory or directory names in a directory.
 
 @param {NameOrNames} nameOrNames
-@param {FindOptions} [options]
+@param {FileOrDirectoryFindOptions} [options]
 @returns {FindResult}
 
 @example
@@ -109,8 +133,18 @@ console.log(await findDirectory(['node_modules', '.yarn']))
 // "/path/to/node_modules"
 ```
 */
-function findDirectory(nameOrNames, options) {
-  return findInDirectory(nameOrNames, {...options, typeCheck: isDirectory})
+function findDirectory(nameOrNames, {filter, ...options} = {}) {
+  return findInDirectory(nameOrNames, {
+    ...options,
+    async filter(file) {
+      const stats = await file.stat()
+      return Boolean(
+        stats &&
+        stats.isDirectory() &&
+        (!filter || (await filter({...file, stats}))),
+      )
+    },
+  })
 }
 
-export {findDirectory, findFile}
+export {findDirectory, findFile, findInDirectory}
