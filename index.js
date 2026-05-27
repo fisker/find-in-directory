@@ -20,7 +20,7 @@ import {toAbsolutePath} from 'url-or-path'
 @typedef {{
   cwd?: OptionalUrlOrPath,
   allowSymlinks?: boolean,
-  filter?: Filter,
+  filter: Filter,
 }} FindOptions
 
 @typedef {Promise<string | void>} FindResult
@@ -53,7 +53,7 @@ Find matched name or names in a directory
 @param {FindOptions} options
 @returns {FindResult}
 */
-async function findInDirectory(
+async function findInDirectoryInternal(
   nameOrNames,
   {cwd, allowSymlinks = true, filter},
 ) {
@@ -62,13 +62,9 @@ async function findInDirectory(
 
   for (const name of names) {
     const fileOrDirectory = path.join(directory, name)
+    const file = createFileOrDirectory(name, fileOrDirectory, allowSymlinks)
 
-    if (
-      !filter ||
-      (await filter(
-        createFileOrDirectory(name, fileOrDirectory, allowSymlinks),
-      ))
-    ) {
+    if (await filter(file)) {
       return fileOrDirectory
     }
   }
@@ -90,6 +86,23 @@ async function safeStat(path, allowSymlinks = true) {
 }
 
 /**
+@param {(stats: Stats) => boolean} typeCheck
+@param {FileOrDirectoryFindOptions} options
+@returns {FindOptions}
+*/
+const createFindOptions = (typeCheck, {filter, ...options} = {}) => ({
+  ...options,
+  async filter(file) {
+    const stats = await file.stat()
+    return Boolean(
+      stats &&
+      typeCheck(stats) &&
+      (!filter || (await filter({name: file.name, path: file.path, stats}))),
+    )
+  },
+})
+
+/**
 Find matched file or file names in a directory.
 
 @param {NameOrNames} nameOrNames
@@ -104,18 +117,11 @@ console.log(await findFile(['foo.config.js', 'foo.config.json']))
 // "/path/to/foo.config.json"
 ```
 */
-function findFile(nameOrNames, {filter, ...options} = {}) {
-  return findInDirectory(nameOrNames, {
-    ...options,
-    async filter(file) {
-      const stats = await file.stat()
-      return Boolean(
-        stats &&
-        stats.isFile() &&
-        (!filter || (await filter({...file, stats}))),
-      )
-    },
-  })
+function findFile(nameOrNames, options) {
+  return findInDirectoryInternal(
+    nameOrNames,
+    createFindOptions((stats) => stats.isFile(), options),
+  )
 }
 
 /**
@@ -133,18 +139,41 @@ console.log(await findDirectory(['node_modules', '.yarn']))
 // "/path/to/node_modules"
 ```
 */
-function findDirectory(nameOrNames, {filter, ...options} = {}) {
-  return findInDirectory(nameOrNames, {
-    ...options,
-    async filter(file) {
-      const stats = await file.stat()
-      return Boolean(
-        stats &&
-        stats.isDirectory() &&
-        (!filter || (await filter({...file, stats}))),
-      )
-    },
-  })
+function findDirectory(nameOrNames, options) {
+  return findInDirectoryInternal(
+    nameOrNames,
+    createFindOptions((stats) => stats.isDirectory(), options),
+  )
+}
+
+/**
+Find matched directory or file names in a directory.
+
+@param {NameOrNames} nameOrNames
+@param {FileOrDirectoryFilter} filter
+@param {Omit<FileOrDirectoryFindOptions, 'filter'>} [options]
+@returns {FindResult}
+
+@example
+```js
+import {findInDirectory} from 'find-in-directory'
+
+console.log(
+  await findInDirectory(
+    ['node_modules', 'yarn.lock'],
+    ({ stats }) =>
+      (stats.name === 'node_modules' && stats.isDirectory()) ||
+      (stats.name === 'yarn.lock' && stats.isFile()),
+  ),
+);
+// "/path/to/node_modules"
+```
+*/
+function findInDirectory(nameOrNames, filter, options) {
+  return findInDirectoryInternal(
+    nameOrNames,
+    createFindOptions(() => true, {...options, filter}),
+  )
 }
 
 export {findDirectory, findFile, findInDirectory}
