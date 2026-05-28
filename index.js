@@ -67,8 +67,6 @@ function isType(stats, type) {
 }
 
 /**
-Find matched name or names in a directory
-
 @param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptions | undefined} filterOrOptions
 @param {OptionsWithoutFilter | undefined} optionsWithoutFilter
@@ -123,7 +121,7 @@ async function findInternal(
 }
 
 /**
-Find matched file or file names in a directory.
+Find matched file or files in a directory.
 
 @param {TargetOrTargetsWithoutType} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
@@ -152,7 +150,7 @@ function findFileInDirectory(
 }
 
 /**
-Find matched directory or directory names in a directory.
+Find matched directory or directories in a directory.
 
 @param {TargetOrTargetsWithoutType} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
@@ -181,7 +179,7 @@ function findDirectoryInDirectory(
 }
 
 /**
-Find matched directory or file names in a directory.
+Find matched directories or files in a directory.
 
 @param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptions} [filterOrOptions]
