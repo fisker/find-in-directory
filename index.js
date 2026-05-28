@@ -17,7 +17,8 @@ import {toAbsolutePath} from 'url-or-path'
   stats: Stats,
 }} FileOrDirectory
 
-@typedef {string | string[]} NameOrNames
+@typedef {string | {name: string, type?: Type}} Target
+@typedef {Target | Target[]} TargetOrTargets
 
 @typedef {{
   cwd?: OptionalUrlOrPath,
@@ -64,13 +65,13 @@ function isType(stats, type) {
 /**
 Find matched name or names in a directory
 
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptions | undefined} filterOrOptions
 @param {OptionsWithoutFilter | undefined} optionsWithoutFilter
 @param {Type} [type]
 */
 async function findInternal(
-  nameOrNames,
+  targetOrTargets,
   filterOrOptions,
   optionsWithoutFilter,
   type,
@@ -107,7 +108,7 @@ async function findInternal(
 /**
 Find matched file or file names in a directory.
 
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
 @param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
@@ -121,12 +122,12 @@ console.log(await findFileInDirectory(['foo.config.js', 'foo.config.json']))
 ```
 */
 function findFileInDirectory(
-  nameOrNames,
+  targetOrTargets,
   filterOrOptions,
   optionsWithoutFilter,
 ) {
   return findInternal(
-    nameOrNames,
+    targetOrTargets,
     filterOrOptions,
     optionsWithoutFilter,
     'file',
@@ -136,7 +137,7 @@ function findFileInDirectory(
 /**
 Find matched directory or directory names in a directory.
 
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
 @param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
@@ -150,12 +151,12 @@ console.log(await findDirectoryInDirectory(['node_modules', '.yarn']))
 ```
 */
 function findDirectoryInDirectory(
-  nameOrNames,
+  targetOrTargets,
   filterOrOptions,
   optionsWithoutFilter,
 ) {
   return findInternal(
-    nameOrNames,
+    targetOrTargets,
     filterOrOptions,
     optionsWithoutFilter,
     'directory',
@@ -165,7 +166,7 @@ function findDirectoryInDirectory(
 /**
 Find matched directory or file names in a directory.
 
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptions} [filterOrOptions]
 @param {OptionsWithoutFilter} [optionsWithoutFilter]
 @returns {FindResult}
@@ -185,8 +186,12 @@ console.log(
 // "/path/to/yarn.lock"
 ```
 */
-function findInDirectory(nameOrNames, filterOrOptions, optionsWithoutFilter) {
-  return findInternal(nameOrNames, filterOrOptions, optionsWithoutFilter)
+function findInDirectory(
+  targetOrTargets,
+  filterOrOptions,
+  optionsWithoutFilter,
+) {
+  return findInternal(targetOrTargets, filterOrOptions, optionsWithoutFilter)
 }
 
 export {findDirectoryInDirectory, findFileInDirectory, findInDirectory}
