@@ -82,6 +82,21 @@ test('main', async () => {
     )
   }
 
+  // `target.type` is ignored when `option.type` passed
+  {
+    assert.equal(
+      await find({name: 'a-file', type: 'file'}, {cwd: fixtures, type: 'file'}),
+      getPath('a-file'),
+    )
+    assert.equal(
+      await find(
+        {name: 'a-file', type: 'directory'},
+        {cwd: fixtures, type: 'file'},
+      ),
+      getPath('a-file'),
+    )
+  }
+
   // filter in targets
   assert.equal(
     await findFile({name: 'a-file', filter: () => true}, {cwd: fixtures}),

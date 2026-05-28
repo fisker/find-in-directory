@@ -113,7 +113,7 @@ async function findInternal(
 
     const type = shouldIgnoreTargetType
       ? options.type
-      : (target.type ?? options.type)
+      : (options.type ?? target.type)
 
     // Type doesn't satisfy
     if (!isTypeSatisfied(stats, type)) {
