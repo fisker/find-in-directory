@@ -17,8 +17,12 @@ import {toAbsolutePath} from 'url-or-path'
   stats: Stats,
 }} FileOrDirectory
 
-@typedef {string | {name: string, type?: Type}} Target
+@typedef {{name: string, type?: Type}} ObjectTarget
+@typedef {string | ObjectTarget} Target
 @typedef {Target | Target[]} TargetOrTargets
+
+@typedef {string | Omit<ObjectTarget, 'type'>} TargetWithoutType
+@typedef {TargetWithoutType | TargetWithoutType[]} TargetOrTargetsWithoutType
 
 @typedef {{
   cwd?: OptionalUrlOrPath,
@@ -76,26 +80,39 @@ async function findInternal(
   optionsWithoutFilter,
   type,
 ) {
-  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
+  const targets = Array.isArray(targetOrTargets)
+    ? targetOrTargets
+    : [targetOrTargets]
   const options =
     typeof filterOrOptions === 'function'
       ? {...optionsWithoutFilter, filter: filterOrOptions}
       : {...filterOrOptions}
+  const shouldIgnoreTargetType = Boolean(type)
+  if (shouldIgnoreTargetType) {
+    options.type = type
+  }
+
   const {filter, cwd, allowSymlinks = true} = options
   const directory = toAbsolutePath(cwd) ?? process.cwd()
 
-  type ??= options.type
+  for (let target of targets) {
+    if (typeof target === 'string') {
+      // eslint-disable-next-line sonarjs/updated-loop-counter
+      target = {name: target}
+    }
 
-  for (const name of names) {
-    const fileOrDirectory = path.join(directory, name)
+    const fileOrDirectory = path.join(directory, target.name)
     const stats = await safeStat(fileOrDirectory, allowSymlinks)
+    const type = shouldIgnoreTargetType
+      ? options.type
+      : (target.type ?? options.type)
 
     if (
       stats &&
       isType(stats, type) &&
       (!filter ||
         (await filter({
-          name,
+          name: target.name,
           path: fileOrDirectory,
           stats,
         })))
@@ -108,7 +125,7 @@ async function findInternal(
 /**
 Find matched file or file names in a directory.
 
-@param {TargetOrTargets} targetOrTargets
+@param {TargetOrTargetsWithoutType} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
 @param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
@@ -137,7 +154,7 @@ function findFileInDirectory(
 /**
 Find matched directory or directory names in a directory.
 
-@param {TargetOrTargets} targetOrTargets
+@param {TargetOrTargetsWithoutType} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
 @param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
