@@ -208,10 +208,10 @@ Find matched directories or files in a directory.
 import {findInDirectory} from 'find-in-directory'
 
 console.log(
-  await findInDirectory(
+  await findInDirectory([
     {name: 'yarn.lock', type: 'file'},
     {name: '.yarn', type: 'directory'},
-  ),
+  ]),
 )
 // "/path/to/yarn.lock"
 ```

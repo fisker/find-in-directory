@@ -35,10 +35,10 @@ console.log(await findDirectoryInDirectory(['node_modules', '.yarn']))
 // "/path/to/node_modules"
 
 console.log(
-  await findInDirectory(
+  await findInDirectory([
     {name: 'yarn.lock', type: 'file'},
     {name: '.yarn', type: 'directory'},
-  ),
+  ]),
 )
 // "/path/to/yarn.lock"
 ```
