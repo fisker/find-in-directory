@@ -35,7 +35,7 @@ console.log(await findDirectoryInDirectory(['node_modules', '.yarn']))
 // "/path/to/node_modules"
 
 console.log(
-  await findDirectory(
+  await findInDirectory(
     ['yarn.lock', '.yarn'],
     ({name, stats}) =>
       (name === 'yarn.lock' && stats.isFile()) ||

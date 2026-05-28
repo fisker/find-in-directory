@@ -164,13 +164,13 @@ import {findInDirectory} from 'find-in-directory'
 
 console.log(
   await findInDirectory(
-    ['node_modules', 'yarn.lock'],
-    ({ name, stats }) =>
-      (name === 'node_modules' && stats.isDirectory()) ||
-      (name === 'yarn.lock' && stats.isFile()),
+    ['yarn.lock', '.yarn'],
+    ({name, stats}) =>
+      (name === 'yarn.lock' && stats.isFile()) ||
+      (name === '.yarn' && stats.isDirectory()),
   ),
-);
-// "/path/to/node_modules"
+)
+// "/path/to/yarn.lock"
 ```
 */
 function findInDirectory(nameOrNames, filterOrOptions, optionsWithoutFilter) {
