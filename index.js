@@ -109,7 +109,11 @@ console.log(await findFile(['foo.config.js', 'foo.config.json']))
 // "/path/to/foo.config.json"
 ```
 */
-function findFile(nameOrNames, filterOrOptions, optionsWithoutFilter) {
+function findFileInDirectory(
+  nameOrNames,
+  filterOrOptions,
+  optionsWithoutFilter,
+) {
   return findInternal(
     nameOrNames,
     filterOrOptions,
@@ -134,7 +138,11 @@ console.log(await findDirectory(['node_modules', '.yarn']))
 // "/path/to/node_modules"
 ```
 */
-function findDirectory(nameOrNames, filterOrOptions, optionsWithoutFilter) {
+function findDirectoryInDirectory(
+  nameOrNames,
+  filterOrOptions,
+  optionsWithoutFilter,
+) {
   return findInternal(
     nameOrNames,
     filterOrOptions,
@@ -170,4 +178,4 @@ function findInDirectory(nameOrNames, filterOrOptions, optionsWithoutFilter) {
   return findInternal(nameOrNames, filterOrOptions, optionsWithoutFilter)
 }
 
-export {findDirectory, findFile, findInDirectory}
+export {findDirectoryInDirectory, findFileInDirectory, findInDirectory}
