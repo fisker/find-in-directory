@@ -102,9 +102,9 @@ Find matched file or file names in a directory.
 
 @example
 ```js
-import {findFile} from 'find-in-directory'
+import {findFileInDirectory} from 'find-in-directory'
 
-console.log(await findFile(['foo.config.js', 'foo.config.json']))
+console.log(await findFileInDirectory(['foo.config.js', 'foo.config.json']))
 // "/path/to/foo.config.json"
 ```
 */
@@ -131,9 +131,9 @@ Find matched directory or directory names in a directory.
 
 @example
 ```js
-import {findDirectory} from 'find-in-directory'
+import {findDirectoryInDirectory} from 'find-in-directory'
 
-console.log(await findDirectory(['node_modules', '.yarn']))
+console.log(await findDirectoryInDirectory(['node_modules', '.yarn']))
 // "/path/to/node_modules"
 ```
 */
