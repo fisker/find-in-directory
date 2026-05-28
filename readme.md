@@ -92,6 +92,14 @@ Should allow symlinks or not.
 
 Type: `boolean`
 
+#### `options["type"]`
+
+The file or directory type looking for.
+
+Type: `'file' | 'directory'`
+
+_Ignored in `findFileInDirectory` and `fileDirectoryInDirectory`_
+
 ## Related
 
 - [`search-closest`](https://github.com/fisker/search-closest) - Find closest file or directory.

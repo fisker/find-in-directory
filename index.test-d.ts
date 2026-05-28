@@ -1,5 +1,5 @@
 import * as url from 'node:url'
-import {expectType} from 'tsd'
+import {expectType, expectError} from 'tsd'
 import {
   findFileInDirectory,
   findDirectoryInDirectory,
@@ -52,3 +52,12 @@ for (const find of [
   expectType<string | undefined>(await find('name', {allowSymlinks: true}))
   expectType<string | undefined>(await find('name', {allowSymlinks: false}))
 }
+
+// `Options.type`
+expectType<string | undefined>(await findInDirectory('name', {type: 'file'}))
+expectType<string | undefined>(
+  await findInDirectory('name', {type: 'directory'}),
+)
+expectError(await findFileInDirectory('name', {type: 'file'}))
+expectError(await findFileInDirectory('name', {type: 'directory'}))
+expectError(await findDirectoryInDirectory('name', {type: 'directory'}))

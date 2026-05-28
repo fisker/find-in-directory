@@ -23,11 +23,14 @@ import {toAbsolutePath} from 'url-or-path'
   cwd?: OptionalUrlOrPath,
   allowSymlinks?: boolean,
   filter?: Filter
+  type?: Type
 }} FindOptions
 
 @typedef {Filter | FindOptions} FilterOrOptions
+@typedef {Filter | Omit<FindOptions, 'type'>} FilterOrOptionsWithoutType
 
 @typedef {Omit<FindOptions, 'filter'>} OptionsWithoutFilter
+@typedef {Omit<OptionsWithoutFilter, 'type'>} OptionsWithoutFilterAndType
 
 @typedef {Promise<string | undefined>} FindResult
 */
@@ -73,14 +76,14 @@ async function findInternal(
   type,
 ) {
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
-  const {
-    filter,
-    cwd,
-    allowSymlinks = true,
-  } = typeof filterOrOptions === 'function'
-    ? {...optionsWithoutFilter, filter: filterOrOptions}
-    : {...filterOrOptions}
+  const options =
+    typeof filterOrOptions === 'function'
+      ? {...optionsWithoutFilter, filter: filterOrOptions}
+      : {...filterOrOptions}
+  const {filter, cwd, allowSymlinks = true} = options
   const directory = toAbsolutePath(cwd) ?? process.cwd()
+
+  type ??= options.type
 
   for (const name of names) {
     const fileOrDirectory = path.join(directory, name)
@@ -105,8 +108,8 @@ async function findInternal(
 Find matched file or file names in a directory.
 
 @param {NameOrNames} nameOrNames
-@param {FilterOrOptions} [filterOrOptions]
-@param {OptionsWithoutFilter} [optionsWithoutFilter]
+@param {FilterOrOptionsWithoutType} [filterOrOptions]
+@param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
 
 @example
@@ -134,8 +137,8 @@ function findFileInDirectory(
 Find matched directory or directory names in a directory.
 
 @param {NameOrNames} nameOrNames
-@param {FilterOrOptions} [filterOrOptions]
-@param {OptionsWithoutFilter} [optionsWithoutFilter]
+@param {FilterOrOptionsWithoutType} [filterOrOptions]
+@param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
 
 @example

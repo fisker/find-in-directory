@@ -233,6 +233,17 @@ test('Options', async () => {
     }),
     undefined,
   )
+
+  // `Options.type`
+  const names = ['non-exits-file', 'a-file', 'a-directory']
+  const expectedFile = getPath('a-file')
+  const expectedDirectory = getPath('a-directory')
+  assert.equal(await find(names, {cwd: fixtures}), expectedFile)
+  assert.equal(
+    await find(names, {type: 'directory', cwd: fixtures}),
+    expectedDirectory,
+  )
+  assert.equal(await find(names, {type: 'file', cwd: fixtures}), expectedFile)
 })
 
 test('Should accept url, absolute path, or relative path', async () => {
