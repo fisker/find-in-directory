@@ -58,7 +58,7 @@ async function safeStat(path, allowSymlinks) {
 @param {Stats} stats
 @param {Type | undefined} type
 */
-function isType(stats, type) {
+function isTypeSatisfied(stats, type) {
   return (
     !type ||
     (type === 'file' && stats.isFile()) ||
@@ -107,7 +107,7 @@ async function findInternal(
 
     if (
       stats &&
-      isType(stats, type) &&
+      isTypeSatisfied(stats, type) &&
       (!filter ||
         (await filter({
           name: target.name,
