@@ -17,7 +17,11 @@ import {toAbsolutePath} from 'url-or-path'
   stats: Stats,
 }} FileOrDirectory
 
-@typedef {{name: string, type?: Type}} ObjectTarget
+@typedef {{
+  name: string,
+  type?: Type,
+  filter?: Filter
+}} ObjectTarget
 @typedef {string | ObjectTarget} Target
 @typedef {Target | Target[]} TargetOrTargets
 
@@ -26,9 +30,9 @@ import {toAbsolutePath} from 'url-or-path'
 
 @typedef {{
   cwd?: OptionalUrlOrPath,
-  allowSymlinks?: boolean,
-  filter?: Filter
   type?: Type
+  filter?: Filter
+  allowSymlinks?: boolean,
 }} FindOptions
 
 @typedef {Filter | FindOptions} FilterOrOptions
@@ -90,7 +94,7 @@ async function findInternal(
     options.type = type
   }
 
-  const {filter, cwd, allowSymlinks = true} = options
+  const {cwd, allowSymlinks = true} = options
   const directory = toAbsolutePath(cwd) ?? process.cwd()
 
   for (let target of targets) {
@@ -101,22 +105,35 @@ async function findInternal(
 
     const fileOrDirectory = path.join(directory, target.name)
     const stats = await safeStat(fileOrDirectory, allowSymlinks)
+
+    // Target doesn't exists
+    if (!stats) {
+      continue
+    }
+
     const type = shouldIgnoreTargetType
       ? options.type
       : (target.type ?? options.type)
 
-    if (
-      stats &&
-      isTypeSatisfied(stats, type) &&
-      (!filter ||
-        (await filter({
-          name: target.name,
-          path: fileOrDirectory,
-          stats,
-        })))
-    ) {
-      return fileOrDirectory
+    // Type doesn't satisfy
+    if (!isTypeSatisfied(stats, type)) {
+      continue
     }
+
+    if (options.filter || target.filter) {
+      const file = {name: target.name, path: fileOrDirectory, stats}
+
+      if (
+        // `options.filter` not matched
+        (options.filter && !(await options.filter(file))) ||
+        // `target.filter` not matched
+        (target.filter && !(await target.filter(file)))
+      ) {
+        continue
+      }
+    }
+
+    return fileOrDirectory
   }
 }
 

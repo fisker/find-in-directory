@@ -81,6 +81,39 @@ test('main', async () => {
       getPath('a-directory'),
     )
   }
+
+  // filter in targets
+  assert.equal(
+    await findFile({name: 'a-file', filter: () => true}, {cwd: fixtures}),
+    getPath('a-file'),
+  )
+  assert.equal(
+    await findFile({name: 'a-file', filter: () => false}, {cwd: fixtures}),
+    undefined,
+  )
+  assert.deepEqual(
+    await (async () => {
+      const filterOrder = []
+      await findFile(
+        {
+          name: 'a-file',
+          filter() {
+            filterOrder.push('target.filter')
+            return true
+          },
+        },
+        {
+          cwd: fixtures,
+          filter() {
+            filterOrder.push('options.filter')
+            return true
+          },
+        },
+      )
+      return filterOrder
+    })(),
+    ['options.filter', 'target.filter'],
+  )
 })
 
 test('Should only match exists files/directories', async () => {

@@ -14,8 +14,16 @@ for (const find of [
   // `targets`
   expectType<string | undefined>(await find('name'))
   expectType<string | undefined>(await find(['a', 'b']))
+
+  // Object `Target`
   expectType<string | undefined>(await find({name: 'name'}))
   expectType<string | undefined>(await find(['a', {name: 'b'}]))
+
+  // `Target.filter`
+  expectType<string | undefined>(await find({name: 'name', filter: () => true}))
+  expectType<string | undefined>(
+    await find({name: 'name', filter: () => Promise.resolve(false)}),
+  )
 
   // `options`
   expectType<string | undefined>(await find('name', {}))

@@ -64,7 +64,7 @@ Type: `Target | Target[]`
 
 The files or directories to find.
 
-Type: `string | {name: string, type: 'file' | 'directory'}`
+Type: `string | {name: string, type?: 'file' | 'directory', filter?: Options["filter"]}`
 
 #### `Target["type"]`
 
