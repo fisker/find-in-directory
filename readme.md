@@ -33,22 +33,31 @@ console.log(await findDirectory(['node_modules', '.yarn']))
 
 ## API
 
-### `find{File,Directory}(nameOrNames, options?)`
+```ts
+{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames)
+{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames, filter: Options["filter"]) => Promise<string | undefined>
+{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames, options: Options)
+{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)
+```
 
-#### `nameOrNames`
+### types
+
+#### `NameOrNames`
 
 The file/directory name or names to find.
 
 Type: `string[] | string`
 
-#### `options.cwd`
+### `Options`
+
+#### `Options["cwd"]`
 
 The directory to find.
 
 Type: `URL | string`\
 Default: `process.cwd()`
 
-#### `options.filter`
+#### `options["filter"]`
 
 Type: `(fileOrDirectory: {name: string, path: string, stats: fs.Stats}) => Promise<boolean>`
 
@@ -65,7 +74,7 @@ const file = await findFile(['foo.js', 'bar.js'], {
 // "/path/to/bar.js"
 ```
 
-#### `options.allowSymlinks`
+#### `options["allowSymlinks"]`
 
 Should allow symlinks or not.
 

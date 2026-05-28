@@ -25,7 +25,9 @@
   },
   "files": [
     "index.js",
-    "index.d.ts"
+    "index.d.ts",
+    "find.js",
+    "find.d.ts"
   ],
   "scripts": {
     "build": "run-p clean \"build:*\"",
