@@ -9,6 +9,8 @@ import {toAbsolutePath} from 'url-or-path'
 
 @typedef {(fileOrDirectory: FileOrDirectory) => Promise<boolean> | boolean} Filter
 
+@typedef {'file' | 'directory'} Type
+
 @typedef {{
   name: string,
   path: string,
@@ -30,11 +32,6 @@ import {toAbsolutePath} from 'url-or-path'
 @typedef {Promise<string | undefined>} FindResult
 */
 
-/** @param {Stats} stats */
-const isFile = (stats) => stats.isFile()
-/** @param {Stats} stats */
-const isDirectory = (stats) => stats.isDirectory()
-
 /**
 Get stats for the given `path`.
 
@@ -50,18 +47,30 @@ async function safeStat(path, allowSymlinks) {
 }
 
 /**
+@param {Stats} stats
+@param {Type | undefined} type
+*/
+function isType(stats, type) {
+  return (
+    !type ||
+    (type === 'file' && stats.isFile()) ||
+    (type === 'directory' && stats.isDirectory())
+  )
+}
+
+/**
 Find matched name or names in a directory
 
 @param {NameOrNames} nameOrNames
 @param {FilterOrOptions | undefined} filterOrOptions
 @param {OptionsWithoutFilter | undefined} optionsWithoutFilter
-@param {typeof isFile | typeof isDirectory} [typeCheck]
+@param {Type} [type]
 */
 async function findInternal(
   nameOrNames,
   filterOrOptions,
   optionsWithoutFilter,
-  typeCheck,
+  type,
 ) {
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
   const {
@@ -79,7 +88,7 @@ async function findInternal(
 
     if (
       stats &&
-      (!typeCheck || typeCheck(stats)) &&
+      isType(stats, type) &&
       (!filter ||
         (await filter({
           name,
@@ -117,7 +126,7 @@ function findFileInDirectory(
     nameOrNames,
     filterOrOptions,
     optionsWithoutFilter,
-    isFile,
+    'file',
   )
 }
 
@@ -146,7 +155,7 @@ function findDirectoryInDirectory(
     nameOrNames,
     filterOrOptions,
     optionsWithoutFilter,
-    isDirectory,
+    'directory',
   )
 }
 
