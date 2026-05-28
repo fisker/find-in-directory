@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import url from 'node:url'
-import {findDirectory, findFile} from './index.js'
+import {
+  findDirectoryInDirectory as findDirectory,
+  findFileInDirectory as findFile,
+  findInDirectory as find,
+} from './index.js'
 
 const fixtures = new URL('./fixtures/', import.meta.url)
 const getPath = (path) => url.fileURLToPath(new URL(path, fixtures))
@@ -25,6 +29,26 @@ test('main', async () => {
     await findDirectory(['non-exits-directory'], {cwd: fixtures}),
     undefined,
   )
+
+  // Any
+  assert.equal(await find(['a-file'], {cwd: fixtures}), getPath('a-file'))
+  assert.equal(
+    await find(['a-directory'], {cwd: fixtures}),
+    getPath('a-directory'),
+  )
+  assert.equal(
+    await find(['a-directory', 'a-file'], ({stats}) => stats.isDirectory(), {
+      cwd: fixtures,
+    }),
+    getPath('a-directory'),
+  )
+  assert.equal(
+    await find(['a-directory', 'a-file'], ({stats}) => stats.isFile(), {
+      cwd: fixtures,
+    }),
+    getPath('a-file'),
+  )
+  assert.equal(await find(['non-exits-file'], {cwd: fixtures}), undefined)
 })
 
 test('Should only match exists files/directories', async () => {
