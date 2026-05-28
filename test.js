@@ -244,6 +244,25 @@ test('Options', async () => {
     expectedDirectory,
   )
   assert.equal(await find(names, {type: 'file', cwd: fixtures}), expectedFile)
+  {
+    // Ignore `options.type` in `find{File,Directory}`
+    assert.equal(
+      await findFile(names, {type: 'file', cwd: fixtures}),
+      expectedFile,
+    )
+    assert.equal(
+      await findFile(names, {type: 'directory', cwd: fixtures}),
+      expectedFile,
+    )
+    assert.equal(
+      await findDirectory(names, {type: 'file', cwd: fixtures}),
+      expectedDirectory,
+    )
+    assert.equal(
+      await findDirectory(names, {type: 'directory', cwd: fixtures}),
+      expectedDirectory,
+    )
+  }
 })
 
 test('Should accept url, absolute path, or relative path', async () => {
