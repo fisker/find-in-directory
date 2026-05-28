@@ -17,7 +17,12 @@ import {toAbsolutePath} from 'url-or-path'
   stats: Stats,
 }} FileOrDirectory
 
-@typedef {string | string[]} NameOrNames
+@typedef {{name: string, type?: Type}} ObjectTarget
+@typedef {string | ObjectTarget} Target
+@typedef {Target | Target[]} TargetOrTargets
+
+@typedef {string | Omit<ObjectTarget, 'type'>} TargetWithoutType
+@typedef {TargetWithoutType | TargetWithoutType[]} TargetOrTargetsWithoutType
 
 @typedef {{
   cwd?: OptionalUrlOrPath,
@@ -53,7 +58,7 @@ async function safeStat(path, allowSymlinks) {
 @param {Stats} stats
 @param {Type | undefined} type
 */
-function isType(stats, type) {
+function isTypeSatisfied(stats, type) {
   return (
     !type ||
     (type === 'file' && stats.isFile()) ||
@@ -62,39 +67,50 @@ function isType(stats, type) {
 }
 
 /**
-Find matched name or names in a directory
-
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptions | undefined} filterOrOptions
 @param {OptionsWithoutFilter | undefined} optionsWithoutFilter
 @param {Type} [type]
 */
 async function findInternal(
-  nameOrNames,
+  targetOrTargets,
   filterOrOptions,
   optionsWithoutFilter,
   type,
 ) {
-  const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
+  const targets = Array.isArray(targetOrTargets)
+    ? targetOrTargets
+    : [targetOrTargets]
   const options =
     typeof filterOrOptions === 'function'
       ? {...optionsWithoutFilter, filter: filterOrOptions}
       : {...filterOrOptions}
+  const shouldIgnoreTargetType = Boolean(type)
+  if (shouldIgnoreTargetType) {
+    options.type = type
+  }
+
   const {filter, cwd, allowSymlinks = true} = options
   const directory = toAbsolutePath(cwd) ?? process.cwd()
 
-  type ??= options.type
+  for (let target of targets) {
+    if (typeof target === 'string') {
+      // eslint-disable-next-line sonarjs/updated-loop-counter
+      target = {name: target}
+    }
 
-  for (const name of names) {
-    const fileOrDirectory = path.join(directory, name)
+    const fileOrDirectory = path.join(directory, target.name)
     const stats = await safeStat(fileOrDirectory, allowSymlinks)
+    const type = shouldIgnoreTargetType
+      ? options.type
+      : (target.type ?? options.type)
 
     if (
       stats &&
-      isType(stats, type) &&
+      isTypeSatisfied(stats, type) &&
       (!filter ||
         (await filter({
-          name,
+          name: target.name,
           path: fileOrDirectory,
           stats,
         })))
@@ -105,9 +121,9 @@ async function findInternal(
 }
 
 /**
-Find matched file or file names in a directory.
+Find matched file or files in a directory.
 
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargetsWithoutType} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
 @param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
@@ -121,12 +137,12 @@ console.log(await findFileInDirectory(['foo.config.js', 'foo.config.json']))
 ```
 */
 function findFileInDirectory(
-  nameOrNames,
+  targetOrTargets,
   filterOrOptions,
   optionsWithoutFilter,
 ) {
   return findInternal(
-    nameOrNames,
+    targetOrTargets,
     filterOrOptions,
     optionsWithoutFilter,
     'file',
@@ -134,9 +150,9 @@ function findFileInDirectory(
 }
 
 /**
-Find matched directory or directory names in a directory.
+Find matched directory or directories in a directory.
 
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargetsWithoutType} targetOrTargets
 @param {FilterOrOptionsWithoutType} [filterOrOptions]
 @param {OptionsWithoutFilterAndType} [optionsWithoutFilter]
 @returns {FindResult}
@@ -150,12 +166,12 @@ console.log(await findDirectoryInDirectory(['node_modules', '.yarn']))
 ```
 */
 function findDirectoryInDirectory(
-  nameOrNames,
+  targetOrTargets,
   filterOrOptions,
   optionsWithoutFilter,
 ) {
   return findInternal(
-    nameOrNames,
+    targetOrTargets,
     filterOrOptions,
     optionsWithoutFilter,
     'directory',
@@ -163,9 +179,9 @@ function findDirectoryInDirectory(
 }
 
 /**
-Find matched directory or file names in a directory.
+Find matched directories or files in a directory.
 
-@param {NameOrNames} nameOrNames
+@param {TargetOrTargets} targetOrTargets
 @param {FilterOrOptions} [filterOrOptions]
 @param {OptionsWithoutFilter} [optionsWithoutFilter]
 @returns {FindResult}
@@ -176,17 +192,19 @@ import {findInDirectory} from 'find-in-directory'
 
 console.log(
   await findInDirectory(
-    ['yarn.lock', '.yarn'],
-    ({name, stats}) =>
-      (name === 'yarn.lock' && stats.isFile()) ||
-      (name === '.yarn' && stats.isDirectory()),
+    {name: 'yarn.lock', type: 'file'},
+    {name: '.yarn', type: 'directory'},
   ),
 )
 // "/path/to/yarn.lock"
 ```
 */
-function findInDirectory(nameOrNames, filterOrOptions, optionsWithoutFilter) {
-  return findInternal(nameOrNames, filterOrOptions, optionsWithoutFilter)
+function findInDirectory(
+  targetOrTargets,
+  filterOrOptions,
+  optionsWithoutFilter,
+) {
+  return findInternal(targetOrTargets, filterOrOptions, optionsWithoutFilter)
 }
 
 export {findDirectoryInDirectory, findFileInDirectory, findInDirectory}

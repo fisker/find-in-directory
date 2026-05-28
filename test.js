@@ -49,6 +49,38 @@ test('main', async () => {
     getPath('a-file'),
   )
   assert.equal(await find(['non-exits-file'], {cwd: fixtures}), undefined)
+
+  // type in targets
+  assert.equal(
+    await find({name: 'a-file', type: 'file'}, {cwd: fixtures}),
+    getPath('a-file'),
+  )
+  assert.equal(
+    await find({name: 'a-file', type: 'directory'}, {cwd: fixtures}),
+    undefined,
+  )
+  {
+    // Ignore `target.type` in `find{File,Directory}`
+    assert.equal(
+      await findFile({name: 'a-file', type: 'file'}, {cwd: fixtures}),
+      getPath('a-file'),
+    )
+    assert.equal(
+      await findFile({name: 'a-file', type: 'directory'}, {cwd: fixtures}),
+      getPath('a-file'),
+    )
+    assert.equal(
+      await findDirectory({name: 'a-directory', type: 'file'}, {cwd: fixtures}),
+      getPath('a-directory'),
+    )
+    assert.equal(
+      await findDirectory(
+        {name: 'a-directory', type: 'directory'},
+        {cwd: fixtures},
+      ),
+      getPath('a-directory'),
+    )
+  }
 })
 
 test('Should only match exists files/directories', async () => {
@@ -244,6 +276,25 @@ test('Options', async () => {
     expectedDirectory,
   )
   assert.equal(await find(names, {type: 'file', cwd: fixtures}), expectedFile)
+  {
+    // Ignore `options.type` in `find{File,Directory}`
+    assert.equal(
+      await findFile(names, {type: 'file', cwd: fixtures}),
+      expectedFile,
+    )
+    assert.equal(
+      await findFile(names, {type: 'directory', cwd: fixtures}),
+      expectedFile,
+    )
+    assert.equal(
+      await findDirectory(names, {type: 'file', cwd: fixtures}),
+      expectedDirectory,
+    )
+    assert.equal(
+      await findDirectory(names, {type: 'directory', cwd: fixtures}),
+      expectedDirectory,
+    )
+  }
 })
 
 test('Should accept url, absolute path, or relative path', async () => {

@@ -36,10 +36,8 @@ console.log(await findDirectoryInDirectory(['node_modules', '.yarn']))
 
 console.log(
   await findInDirectory(
-    ['yarn.lock', '.yarn'],
-    ({name, stats}) =>
-      (name === 'yarn.lock' && stats.isFile()) ||
-      (name === '.yarn' && stats.isDirectory()),
+    {name: 'yarn.lock', type: 'file'},
+    {name: '.yarn', type: 'directory'},
   ),
 )
 // "/path/to/yarn.lock"
@@ -49,18 +47,43 @@ console.log(
 
 ### Call signatures
 
-- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames)`
-- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, options: Options)`
-- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"])`
-- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)`
+- `find{File,Directory,}InDirectory(targetOrTargets: TargetOrTargets)`
+- `find{File,Directory,}InDirectory(targetOrTargets: TargetOrTargets, options: Options)`
+- `find{File,Directory,}InDirectory(targetOrTargets: TargetOrTargets, filter: Options["filter"])`
+- `find{File,Directory,}InDirectory(targetOrTargets: TargetOrTargets, filter: Options["filter"], options: Omit<Options, "filter">)`
 
 ### types
 
-#### `NameOrNames`
+#### `TargetOrTargets`
 
-The file/directory name or names to find.
+The files or directories to find.
 
-Type: `string[] | string`
+Type: `Target | Target[]`
+
+#### `Target`
+
+The files or directories to find.
+
+Type: `string | {name: string, type: 'file' | 'directory'}`
+
+#### `Target["type"]`
+
+The file or directory type looking for.
+
+```js
+import fs from 'node:fs/promises'
+import {findInDirectory} from 'find-in-directory'
+
+const result = await findInDirectory([
+  {name: 'yarn.lock', type: 'file'},
+  {name: '.yarn', type: 'directory'},
+])
+// "/path/to/bar.js"
+```
+
+_`Target.type` is ignored in `findFileInDirectory()` and `fileDirectoryInDirectory()`, only works in `findInDirectory()`_
+
+#### `Target["name"]`
 
 #### `Options["cwd"]`
 
@@ -98,7 +121,7 @@ The file or directory type looking for.
 
 Type: `'file' | 'directory'`
 
-_Ignored in `findFileInDirectory` and `fileDirectoryInDirectory`_
+_`options.type` is ignored in `findFileInDirectory()` and `fileDirectoryInDirectory()`, only works in `findInDirectory()`_
 
 ## Related
 

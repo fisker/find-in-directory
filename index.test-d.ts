@@ -11,9 +11,11 @@ for (const find of [
   findDirectoryInDirectory,
   findInDirectory,
 ]) {
-  // `nameOrNames`
+  // `targets`
   expectType<string | undefined>(await find('name'))
   expectType<string | undefined>(await find(['a', 'b']))
+  expectType<string | undefined>(await find({name: 'name'}))
+  expectType<string | undefined>(await find(['a', {name: 'b'}]))
 
   // `options`
   expectType<string | undefined>(await find('name', {}))
@@ -61,3 +63,11 @@ expectType<string | undefined>(
 expectError(await findFileInDirectory('name', {type: 'file'}))
 expectError(await findFileInDirectory('name', {type: 'directory'}))
 expectError(await findDirectoryInDirectory('name', {type: 'directory'}))
+
+// `target.type`
+expectType<string | undefined>(
+  await findInDirectory({name: 'name', type: 'file'}),
+)
+expectError(await findFileInDirectory({name: 'name', type: 'file'}))
+expectError(await findFileInDirectory({name: 'name', type: 'directory'}))
+expectError(await findDirectoryInDirectory({name: 'name', type: 'directory'}))
