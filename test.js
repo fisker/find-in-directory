@@ -49,6 +49,38 @@ test('main', async () => {
     getPath('a-file'),
   )
   assert.equal(await find(['non-exits-file'], {cwd: fixtures}), undefined)
+
+  // type in targets
+  assert.equal(
+    await find({name: 'a-file', type: 'file'}, {cwd: fixtures}),
+    getPath('a-file'),
+  )
+  assert.equal(
+    await find({name: 'a-file', type: 'directory'}, {cwd: fixtures}),
+    undefined,
+  )
+  {
+    // Ignore `target.type` in `find{File,Directory}`
+    assert.equal(
+      await findFile({name: 'a-file', type: 'file'}, {cwd: fixtures}),
+      getPath('a-file'),
+    )
+    assert.equal(
+      await findFile({name: 'a-file', type: 'directory'}, {cwd: fixtures}),
+      getPath('a-file'),
+    )
+    assert.equal(
+      await findDirectory({name: 'a-directory', type: 'file'}, {cwd: fixtures}),
+      getPath('a-directory'),
+    )
+    assert.equal(
+      await findDirectory(
+        {name: 'a-directory', type: 'directory'},
+        {cwd: fixtures},
+      ),
+      getPath('a-directory'),
+    )
+  }
 })
 
 test('Should only match exists files/directories', async () => {
