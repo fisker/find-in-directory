@@ -194,10 +194,8 @@ import {findInDirectory} from 'find-in-directory'
 
 console.log(
   await findInDirectory(
-    ['yarn.lock', '.yarn'],
-    ({name, stats}) =>
-      (name === 'yarn.lock' && stats.isFile()) ||
-      (name === '.yarn' && stats.isDirectory()),
+    {name: 'yarn.lock', type: 'file'},
+    {name: '.yarn', type: 'directory'},
   ),
 )
 // "/path/to/yarn.lock"
