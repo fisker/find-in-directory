@@ -30,10 +30,10 @@ import {toAbsolutePath} from 'url-or-path'
 @typedef {Promise<string | undefined>} FindResult
 */
 
-/** @param {FileOrDirectory} file */
-const isFile = (file) => file.stats.isFile()
-/** @param {FileOrDirectory} file */
-const isDirectory = (file) => file.stats.isDirectory()
+/** @param {Stats} stats */
+const isFile = (stats) => stats.isFile()
+/** @param {Stats} stats */
+const isDirectory = (stats) => stats.isDirectory()
 
 /**
 Get stats for the given `path`.
@@ -64,31 +64,30 @@ async function findInternal(
   typeCheck,
 ) {
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames]
-  const options =
-    typeof filterOrOptions === 'function'
-      ? {...optionsWithoutFilter, filter: filterOrOptions}
-      : {...filterOrOptions}
-  const directory = toAbsolutePath(options.cwd) ?? process.cwd()
-  const allowSymlinks = options.allowSymlinks ?? true
-  /** @param {FileOrDirectory} file */
-  const filter = async (file) =>
-    (!typeCheck || typeCheck(file)) &&
-    (!options.filter || (await options.filter(file)))
+  const {
+    filter,
+    cwd,
+    allowSymlinks = true,
+  } = typeof filterOrOptions === 'function'
+    ? {...optionsWithoutFilter, filter: filterOrOptions}
+    : {...filterOrOptions}
+  const directory = toAbsolutePath(cwd) ?? process.cwd()
 
   for (const name of names) {
     const fileOrDirectory = path.join(directory, name)
     const stats = await safeStat(fileOrDirectory, allowSymlinks)
 
-    if (stats) {
-      const file = {
-        name,
-        path: fileOrDirectory,
-        stats,
-      }
-
-      if (await filter(file)) {
-        return fileOrDirectory
-      }
+    if (
+      stats &&
+      (!typeCheck || typeCheck(stats)) &&
+      (!filter ||
+        (await filter({
+          name,
+          path: fileOrDirectory,
+          stats,
+        })))
+    ) {
+      return fileOrDirectory
     }
   }
 }
