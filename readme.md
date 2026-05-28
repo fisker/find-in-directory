@@ -47,13 +47,12 @@ console.log(
 
 ## API
 
-#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames)`
+### Call signatures
 
-#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, options: Options)`
-
-#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"])`
-
-#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)`
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames)`
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, options: Options)`
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"])`
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)`
 
 ### types
 
