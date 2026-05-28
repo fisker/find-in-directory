@@ -47,32 +47,30 @@ console.log(
 
 ## API
 
-### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames)`
+#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames)`
 
-### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, options: Options)`
+#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, options: Options)`
 
-### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"])`
+#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"])`
 
-### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)`
+#### `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)`
 
-## types
+### types
 
-### `NameOrNames`
+#### `NameOrNames`
 
 The file/directory name or names to find.
 
 Type: `string[] | string`
 
-## `Options`
-
-### `Options["cwd"]`
+#### `Options["cwd"]`
 
 The directory to find.
 
 Type: `URL | string`\
 Default: `process.cwd()`
 
-### `options["filter"]`
+#### `options["filter"]`
 
 Type: `(fileOrDirectory: {name: string, path: string, stats: fs.Stats}) => Promise<boolean>`
 
@@ -89,7 +87,7 @@ const file = await findFile(['foo.js', 'bar.js'], {
 // "/path/to/bar.js"
 ```
 
-### `options["allowSymlinks"]`
+#### `options["allowSymlinks"]`
 
 Should allow symlinks or not.
 
