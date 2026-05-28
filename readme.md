@@ -42,7 +42,7 @@ console.log(
       (name === '.yarn' && stats.isDirectory()),
   ),
 )
-// "/path/to/"yarn.lock
+// "/path/to/yarn.lock"
 ```
 
 ## API
