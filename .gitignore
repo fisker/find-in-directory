@@ -102,4 +102,3 @@ typings/
 .deleted/
 dist/
 /index.d.ts
-/find.d.ts
