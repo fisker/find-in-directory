@@ -1,61 +1,54 @@
 import * as url from 'node:url'
 import {expectType} from 'tsd'
-import {findFile, findDirectory} from './index.js'
+import {
+  findFileInDirectory,
+  findDirectoryInDirectory,
+  findInDirectory,
+} from './index.js'
 
-// `nameOrNames`
-expectType<string | void>(await findFile('name'))
-expectType<string | void>(await findDirectory('name'))
-expectType<string | void>(await findFile(['a', 'b']))
-expectType<string | void>(await findDirectory(['a', 'b']))
+for (const find of [
+  findFileInDirectory,
+  findDirectoryInDirectory,
+  findInDirectory,
+]) {
+  // `nameOrNames`
+  expectType<string | undefined>(await find('name'))
+  expectType<string | undefined>(await find(['a', 'b']))
 
-// `options`
-expectType<string | void>(await findFile('name', {}))
-expectType<string | void>(await findDirectory('name', {}))
-expectType<string | void>(await findDirectory('name', undefined))
+  // `options`
+  expectType<string | undefined>(await find('name', {}))
+  expectType<string | undefined>(await find('name', undefined))
+  expectType<string | undefined>(await find('name', () => true))
+  expectType<string | undefined>(await find('name', () => true, {}))
 
-// `options.cwd`
-expectType<string | void>(await findFile('name'))
-expectType<string | void>(await findDirectory('name'))
-expectType<string | void>(await findFile('name', {cwd: '/path/to/directory/'}))
-expectType<string | void>(
-  await findDirectory('name', {cwd: '/path/to/directory/'}),
-)
-expectType<string | void>(
-  await findFile('name', {cwd: url.pathToFileURL('/path/to/directory/')}),
-)
-expectType<string | void>(
-  await findDirectory('name', {cwd: url.pathToFileURL('/path/to/directory/')}),
-)
-expectType<string | void>(
-  await findFile('name', {cwd: url.pathToFileURL('/path/to/directory/').href}),
-)
-expectType<string | void>(
-  await findDirectory('name', {
-    cwd: url.pathToFileURL('/path/to/directory/').href,
-  }),
-)
+  // `options.cwd`
+  expectType<string | undefined>(await find('name'))
+  expectType<string | undefined>(
+    await find('name', {cwd: '/path/to/directory/'}),
+  )
+  expectType<string | undefined>(
+    await find('name', {cwd: url.pathToFileURL('/path/to/directory/')}),
+  )
+  expectType<string | undefined>(
+    await find('name', {cwd: url.pathToFileURL('/path/to/directory/').href}),
+  )
 
-// `options.filter`
-expectType<string | void>(await findFile('name', {filter: () => true}))
-expectType<string | void>(await findDirectory('name', {filter: () => true}))
-expectType<string | void>(
-  await findFile('name', {filter: () => Promise.resolve(false)}),
-)
-expectType<string | void>(
-  await findDirectory('name', {filter: () => Promise.resolve(false)}),
-)
-expectType<string | void>(
-  await findFile('name', {filter: ({name}) => name === 'name'}),
-)
-expectType<string | void>(
-  await findFile('name', {filter: ({path}) => path === path}),
-)
-expectType<string | void>(
-  await findFile('name', {filter: ({stats}) => stats.mtimeMs < Date.now()}),
-)
+  // `options.filter`
+  expectType<string | undefined>(await find('name', {filter: () => true}))
+  expectType<string | undefined>(
+    await find('name', {filter: () => Promise.resolve(false)}),
+  )
+  expectType<string | undefined>(
+    await find('name', {filter: ({name}) => name === 'name'}),
+  )
+  expectType<string | undefined>(
+    await find('name', {filter: ({path}) => path === path}),
+  )
+  expectType<string | undefined>(
+    await find('name', {filter: ({stats}) => stats.mtimeMs < Date.now()}),
+  )
 
-// `options.allowSymlinks`
-expectType<string | void>(await findFile('name', {allowSymlinks: true}))
-expectType<string | void>(await findDirectory('name', {allowSymlinks: true}))
-expectType<string | void>(await findFile('name', {allowSymlinks: false}))
-expectType<string | void>(await findDirectory('name', {allowSymlinks: false}))
+  // `options.allowSymlinks`
+  expectType<string | undefined>(await find('name', {allowSymlinks: true}))
+  expectType<string | undefined>(await find('name', {allowSymlinks: false}))
+}

@@ -25,15 +25,13 @@
   },
   "files": [
     "index.js",
-    "index.d.ts",
-    "find.js",
-    "find.d.ts"
+    "index.d.ts"
   ],
   "scripts": {
-    "build": "run-p clean \"build:*\"",
+    "build": "run-s clean \"build:types\"",
     "build:types": "tsc --emitDeclarationOnly --noEmit false",
     "clean": "run-p \"clean:*\"",
-    "clean:dist": "del-cli dist",
+    "clean:dist": "del-cli index.d.ts",
     "debug": "node --watch example.js",
     "dist": "run-p \"dist:*\"",
     "dist:npm": "release-it",

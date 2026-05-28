@@ -22,23 +22,37 @@ yarn add find-in-directory
 ## Usage
 
 ```js
-import {findFile, findDirectory} from 'find-in-directory'
+import {
+  findFileInDirectory,
+  findDirectoryInDirectory,
+  findInDirectory,
+} from 'find-in-directory'
 
-console.log(await findFile(['foo.config.js', 'foo.config.json']))
+console.log(await findFileInDirectory(['foo.config.js', 'foo.config.json']))
 // "/path/to/foo.config.json"
 
-console.log(await findDirectory(['node_modules', '.yarn']))
+console.log(await findDirectoryInDirectory(['node_modules', '.yarn']))
 // "/path/to/node_modules"
+
+console.log(
+  await findDirectory(
+    ['yarn.lock', '.yarn'],
+    ({name, stats}) =>
+      (name === 'yarn.lock' && stats.isFile()) ||
+      (name === '.yarn' && stats.isDirectory()),
+  ),
+)
+// "/path/to/yarn.lock"
 ```
 
 ## API
 
-```ts
-{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames)
-{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames, filter: Options["filter"]) => Promise<string | undefined>
-{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames, options: Options)
-{findFile,findDirectory,findInDirectory}(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)
-```
+### Call signatures
+
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames)`
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, options: Options)`
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"])`
+- `find{File,Directory,}InDirectory(nameOrNames: NameOrNames, filter: Options["filter"], options: Omit<Options, "filter">)`
 
 ### types
 
@@ -47,8 +61,6 @@ console.log(await findDirectory(['node_modules', '.yarn']))
 The file/directory name or names to find.
 
 Type: `string[] | string`
-
-### `Options`
 
 #### `Options["cwd"]`
 
