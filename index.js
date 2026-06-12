@@ -99,7 +99,6 @@ async function findInternal(
 
   for (let target of targets) {
     if (typeof target === 'string') {
-       
       target = {name: target}
     }
 
