@@ -99,7 +99,6 @@ async function findInternal(
 
   for (let target of targets) {
     if (typeof target === 'string') {
-      // eslint-disable-next-line sonarjs/updated-loop-counter
       target = {name: target}
     }
 
